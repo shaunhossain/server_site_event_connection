@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
@@ -46,12 +47,21 @@ class _MyHomePageState extends State<MyHomePage> {
     stream.streamController.stream.listen((value) async {
       //await Future.delayed(const Duration(seconds: 6));
       log('Value from controller: ${value.data}');
+      DialogBox dialogBox1 = DialogBox(context, value.id, value.time,value.data);
+      DialogBox dialogBox2 = DialogBox(context, value.id, value.time,value.data);
       if(value.id.toString().contains('1')){
-        DailogBox().changingComplete(context, value.id,
-            value.data, value.time);
+        dialogBox1.changingComplete();
+
       }else if(value.id.toString().contains('2')){
-        DailogBox().changingComplete(context, value.id,
-            value.data, value.time);
+        dialogBox1.closeDialog();
+        await Future.delayed(const Duration(seconds: 2));
+        dialogBox2.changingComplete();
+        // Future.delayed(const Duration(seconds: 2), () {
+        //   dialogBox2.changingComplete();
+        // });
+        Future.delayed(const Duration(seconds: 5), () {
+          dialogBox2.closeDialog();
+        });
       }
     });
   }
