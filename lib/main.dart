@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:server_site_events_connection/dailog_box.dart';
 import 'package:server_site_events_connection/progress_dialog.dart';
