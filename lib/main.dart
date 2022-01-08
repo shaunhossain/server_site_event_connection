@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:server_site_events_connection/dailog_box.dart';
+import 'package:server_site_events_connection/progress_dialog.dart';
 import 'package:server_site_events_connection/server_site_event_connect.dart';
 
 void main() {
@@ -11,8 +12,6 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
-
-
 
   @override
   Widget build(BuildContext context) {
@@ -42,25 +41,40 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
   }
 
-  void addEventsListener(){
-    final stream =  ServerSiteEventConnect.connect(uri: 'https://express-eventsource.herokuapp.com/events',closeOnError: true);
-    stream.streamController.stream.listen((value) async {
-      //await Future.delayed(const Duration(seconds: 6));
+  void addEventsListener() {
+    final stream = ServerSiteEventConnect.connect(
+        uri: 'https://express-eventsource.herokuapp.com/events',
+        closeOnError: true);
+    late Stream myStream;
+    myStream = stream.streamController.stream.asBroadcastStream();
+    late DialogBox dialogBox1;
+    late DialogBox dialogBox2;
+    ProgressDialog progressDialog = ProgressDialog(context);
+
+    myStream.listen((value) async {
       log('Value from controller: ${value.data}');
-      DialogBox dialogBox1 = DialogBox(context, value.id, value.time,value.data);
-      DialogBox dialogBox2 = DialogBox(context, value.id, value.time,value.data);
-      if(value.id.toString().contains('1')){
+      dialogBox1 =
+          DialogBox(context, value.id, value.time, value.data);
+      if (value.id.toString().contains('1')) {
         dialogBox1.changingComplete();
 
-      }else if(value.id.toString().contains('2')){
-        dialogBox1.closeDialog();
-        await Future.delayed(const Duration(seconds: 2));
-        dialogBox2.changingComplete();
-        // Future.delayed(const Duration(seconds: 2), () {
-        //   dialogBox2.changingComplete();
-        // });
         Future.delayed(const Duration(seconds: 5), () {
-          dialogBox2.closeDialog();
+          dialogBox1.closeDialog();
+        }).whenComplete((){
+          progressDialog.showProgress();
+        });
+      }
+    });
+
+    myStream.listen((value) async {
+      log('Value from controller: ${value.data}');
+      dialogBox2 =
+          DialogBox(context, value.id, value.time, value.data);
+      if (value.id.toString().contains('2')) {
+        Future.delayed(const Duration(seconds: 5), () {
+          progressDialog.closeDialogBox();
+        }).whenComplete((){
+          dialogBox2.changingComplete();
         });
       }
     });

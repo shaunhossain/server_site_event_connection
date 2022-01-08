@@ -37,7 +37,7 @@ class ServerSiteEventConnect {
             streamController.add(data);
 
             log("data stream : ${data.data}");
-            if(data.id.toString().contains('2')){
+            if(data.id.toString().contains('3')){
               _client.close();
             }
 
