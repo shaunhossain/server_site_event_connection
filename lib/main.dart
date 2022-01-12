@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:developer';
 import 'package:flutter/material.dart';
-import 'package:server_site_events_connection/dailog_box.dart';
-import 'package:server_site_events_connection/progress_dialog.dart';
-import 'package:server_site_events_connection/server_site_event_connect.dart';
+import 'package:server_site_events_connection/dialog_box/dialog_box.dart';
+import 'package:server_site_events_connection/dialog_box/progress_dialog.dart';
+import 'package:server_site_events_connection/api_service/server_site_event_connect.dart';
 
 void main() {
   runApp(const MyApp());
@@ -55,12 +55,12 @@ class _MyHomePageState extends State<MyHomePage> {
       dialogBox1 =
           DialogBox(context, value.id, value.time, value.data);
       if (value.id.toString().contains('1')) {
-        dialogBox1.changingComplete();
+        dialogBox1.dialog(context);
 
         Future.delayed(const Duration(seconds: 5), () {
           dialogBox1.closeDialog();
         }).whenComplete((){
-          progressDialog.showProgress();
+          progressDialog.showProgress(context);
         });
       }
     });
@@ -73,7 +73,7 @@ class _MyHomePageState extends State<MyHomePage> {
         Future.delayed(const Duration(seconds: 5), () {
           progressDialog.closeDialogBox();
         }).whenComplete((){
-          dialogBox2.changingComplete();
+          dialogBox2.dialog(context);
         });
       }
     });

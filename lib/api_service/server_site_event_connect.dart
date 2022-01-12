@@ -2,7 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'package:http/http.dart' as http;
-import 'model_data.dart';
+import '../model/model_data.dart';
 
 
 class ServerSiteEventConnect {
