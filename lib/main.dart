@@ -1,9 +1,14 @@
 import 'dart:async';
 import 'dart:developer';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:server_site_events_connection/bloc/server_side_event_bloc.dart';
+import 'package:server_site_events_connection/bloc/server_states.dart';
 import 'package:server_site_events_connection/dialog_box/dialog_box.dart';
 import 'package:server_site_events_connection/dialog_box/progress_dialog.dart';
-import 'package:server_site_events_connection/api_service/server_site_event_connect.dart';
+import 'package:server_site_events_connection/api_service/server_side_event_connect.dart';
+
+import 'bloc/send_event_request.dart';
 
 void main() {
   runApp(const MyApp());
@@ -19,7 +24,10 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: const MyHomePage(title: 'Flutter Demo Home Page'),
+      home: BlocProvider(
+          create: (context) =>
+              ServerSideEventBloc(),
+          child: const MyHomePage(title: 'hello',))
     );
   }
 }
@@ -36,77 +44,54 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   @override
   void initState() {
-    addEventsListener();
+    final sseStream = context.read<ServerSideEventBloc>();
+    sseStream.getEventResponse("https://express-eventsource.herokuapp.com/events");
     super.initState();
   }
 
-  void addEventsListener() {
-    final stream = ServerSiteEventConnect.connect(
-        uri: 'https://express-eventsource.herokuapp.com/events',
-        closeOnError: true);
-    late Stream myStream;
-    myStream = stream.streamController.stream.asBroadcastStream();
-    late DialogBox dialogBox1;
-    late DialogBox dialogBox2;
-    ProgressDialog progressDialog = ProgressDialog(context);
-
-    myStream.listen((value) async {
-      log('Value from controller: ${value.data}');
-      dialogBox1 =
-          DialogBox(context, value.id, value.time, value.data);
-      if (value.id.toString().contains('1')) {
-        dialogBox1.dialog(context);
-
-        Future.delayed(const Duration(seconds: 5), () {
-          dialogBox1.closeDialog();
-        }).whenComplete((){
-          progressDialog.showProgress(context);
-        });
-      }
-    });
-
-    myStream.listen((value) async {
-      log('Value from controller: ${value.data}');
-      dialogBox2 =
-          DialogBox(context, value.id, value.time, value.data);
-      if (value.id.toString().contains('2')) {
-        Future.delayed(const Duration(seconds: 5), () {
-          progressDialog.closeDialogBox();
-        }).whenComplete((){
-          dialogBox2.dialog(context);
-        });
-      }
-    });
-  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
+    return BlocConsumer<ServerSideEventBloc,ServerStates>(
+      builder: (context, state) {
+        return Scaffold(
+          appBar: AppBar(
+            title: Text(widget.title),
+          ),
+          body: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                const Text(
+                  'You have pushed the button this many times:',
+                ),
+                Text(
+                  'Server site Events',
+                  style: Theme.of(context).textTheme.headline4,
+                ),
+              ],
             ),
-            Text(
-              'Server site Events',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () async {
-          addEventsListener();
-          await Future.delayed(const Duration(seconds: 15));
-        },
-        tooltip: 'Increment',
-        child: const Icon(Icons.add),
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+          ),
+          floatingActionButton: FloatingActionButton(
+            onPressed: () async {
+              await Future.delayed(const Duration(seconds: 15));
+            },
+            tooltip: 'Increment',
+            child: const Icon(Icons.add),
+          ), // This trailing comma makes auto-formatting nicer for build methods.
+        );
+      },
+      listenWhen: (context,state){
+        return state is LoadingData;
+      },
+      listener: (context, state) {
+        if(state is LoadedData){
+          log("check bloc : ${state.modelData.data}");
+        }
+        if(state is InitialData){
+          log("loading");
+        }
+      },
     );
   }
 }

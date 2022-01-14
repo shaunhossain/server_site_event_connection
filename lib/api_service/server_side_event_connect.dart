@@ -5,12 +5,12 @@ import 'package:http/http.dart' as http;
 import '../model/model_data.dart';
 
 
-class ServerSiteEventConnect {
+class ServerSideEventConnect {
   final StreamController<ModelData> streamController;
 
-  ServerSiteEventConnect._internal(this.streamController);
+  ServerSideEventConnect._internal(this.streamController);
 
-  factory ServerSiteEventConnect.connect({
+  factory ServerSideEventConnect.connect({
     required String uri,
     required bool closeOnError,
   }) {
@@ -56,7 +56,7 @@ class ServerSiteEventConnect {
 
     }
 
-    return ServerSiteEventConnect._internal(streamController);
+    return ServerSideEventConnect._internal(streamController);
   }
 }
 

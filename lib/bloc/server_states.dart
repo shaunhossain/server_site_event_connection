@@ -14,7 +14,7 @@ class InitialData extends ServerStates {}
 class LoadingData extends ServerStates {}
 
 class LoadedData extends ServerStates {
-  LoadedData({required this.modelData});
+  LoadedData({required this.modelData, driverInfo});
   final ModelData modelData;
 
   @override
